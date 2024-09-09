@@ -6,7 +6,7 @@ build:
 	@go build -o ./.bin/auth ./cmd/sso
 
 run:build
-	@./.bin/auth
+	@./.bin/auth --config ./config/config_local.yaml
 
 up:
 	@cd ./sql/migrations;
