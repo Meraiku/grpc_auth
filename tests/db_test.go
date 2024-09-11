@@ -2,6 +2,7 @@ package tests
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"testing"
 
@@ -12,15 +13,20 @@ import (
 )
 
 func TestUserCreation(t *testing.T) {
-	godotenv.Load(".env")
+	err := godotenv.Load(".env")
+	if err != nil {
+		fmt.Println(err)
+		t.Skip(err)
+	}
 
 	db, err := postgres.New(os.Getenv("DB_URL"))
 
 	if err != nil {
 		t.Skip(err)
 	}
+	email := "test@gmail.com"
 
-	id, err := db.SaveUser(context.Background(), "test@gmail.com", []byte("pass"))
+	id, err := db.SaveUser(context.Background(), email, []byte("pass"))
 
 	if !assert.Nil(t, err, "want user creation, but got err: %s", err) {
 		t.Fail()
@@ -31,4 +37,8 @@ func TestUserCreation(t *testing.T) {
 		t.Fail()
 	}
 
+	err = db.DeleteUser(context.Background(), email)
+	if !assert.Nil(t, err, "want succses on deletion user, but got err: %s", err) {
+		t.Fail()
+	}
 }
