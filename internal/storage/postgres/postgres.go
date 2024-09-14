@@ -53,3 +53,23 @@ func (s *Storage) DeleteUser(ctx context.Context, email string) error {
 	}
 	return nil
 }
+
+func (s *Storage) User(ctx context.Context, email string) (*User, error) {
+	u := &User{}
+
+	_, err := s.db.NewSelect().Model(u).Where("email = ?", email).Exec(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return u, nil
+}
+
+func (s *Storage) App(ctx context.Context, id int) (*App, error) {
+	a := &App{}
+
+	_, err := s.db.NewSelect().Model(a).Where("id = ?", id).Exec(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return a, nil
+}

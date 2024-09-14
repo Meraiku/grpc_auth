@@ -9,6 +9,8 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/Meraiku/grpc_auth/internal/lib/jwt"
+	"github.com/Meraiku/grpc_auth/internal/services/auth"
+	"github.com/Meraiku/grpc_auth/internal/storage"
 	ssov1 "github.com/Meraiku/protos/gen/go/sso"
 )
 
