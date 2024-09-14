@@ -6,6 +6,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/Meraiku/grpc_auth/internal/model"
 	"github.com/Meraiku/grpc_auth/internal/storage/postgres"
 	"github.com/google/uuid"
 	"github.com/joho/godotenv"
@@ -24,9 +25,13 @@ func TestUserCreation(t *testing.T) {
 	if err != nil {
 		t.Skip(err)
 	}
-	email := "test@gmail.com"
+	user := &model.User{
+		ID:       uuid.NewString(),
+		Email:    "test@gmail.com",
+		Password: []byte("pass"),
+	}
 
-	id, err := db.SaveUser(context.Background(), email, []byte("pass"))
+	id, err := db.SaveUser(context.Background(), user)
 
 	if !assert.Nil(t, err, "want user creation, but got err: %s", err) {
 		t.Fail()
@@ -37,7 +42,7 @@ func TestUserCreation(t *testing.T) {
 		t.Fail()
 	}
 
-	err = db.DeleteUser(context.Background(), email)
+	err = db.DeleteUser(context.Background(), user.Email)
 	if !assert.Nil(t, err, "want succses on deletion user, but got err: %s", err) {
 		t.Fail()
 	}

@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"os"
 
+	"github.com/Meraiku/grpc_auth/internal/storage"
 	"github.com/Meraiku/grpc_auth/internal/storage/postgres"
 )
 
@@ -34,6 +35,6 @@ func setupLogger(env string) *slog.Logger {
 	return log
 }
 
-func connectDB() (*postgres.Storage, error) {
+func connectDB() (storage.Storage, error) {
 	return postgres.New(os.Getenv("DB_URL"))
 }
