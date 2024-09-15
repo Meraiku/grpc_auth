@@ -8,6 +8,6 @@ import (
 )
 
 type AuthService interface {
-	Login(ctx context.Context, email string, password string, appID int) (*jwt.Tokens, error)
+	Login(ctx context.Context, user *model.User, appID int) (*jwt.Tokens, error)
 	Register(ctx context.Context, user *model.User) (string, error)
 }

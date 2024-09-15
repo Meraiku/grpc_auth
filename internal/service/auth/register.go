@@ -35,7 +35,7 @@ func (s *service) Register(ctx context.Context, user *model.User) (string, error
 		return "", fmt.Errorf("%s: %w", op, err)
 	}
 
-	id, err := s.userStorage.SaveUser(ctx, user)
+	id, err := s.storage.SaveUser(ctx, user)
 	if err != nil {
 		log.Error("failed to save user", sl.Err(err))
 

@@ -14,7 +14,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (s *service) Login(ctx context.Context, u model.User, appID int) (*jwt.Tokens, error) {
+func (s *service) Login(ctx context.Context, u *model.User, appID int) (*jwt.Tokens, error) {
 	const op = "Auth.Login"
 
 	log := s.log.With(
@@ -24,7 +24,7 @@ func (s *service) Login(ctx context.Context, u model.User, appID int) (*jwt.Toke
 
 	log.Info("attempting to login user")
 
-	user, err := s.userStorage.GetUser(ctx, u.Email)
+	user, err := s.storage.GetUser(ctx, u.Email)
 	if err != nil {
 		if errors.Is(err, storage.ErrUserNotFound) {
 			s.log.Warn("user not found", sl.Err(err))
@@ -43,7 +43,7 @@ func (s *service) Login(ctx context.Context, u model.User, appID int) (*jwt.Toke
 		return nil, fmt.Errorf("%s: %w", op, ErrInvalidCredentials)
 	}
 
-	app, err := s.appStorage.App(ctx, appID)
+	app, err := s.storage.App(ctx, appID)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}

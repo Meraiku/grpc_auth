@@ -1,23 +1,20 @@
 package main
 
 import (
-	"github.com/Meraiku/grpc_auth/internal/config"
-	"github.com/joho/godotenv"
+	"context"
+	"log"
+
+	"github.com/Meraiku/grpc_auth/internal/app"
 )
 
 func main() {
-	godotenv.Load(".env")
-
-	cfg := config.MustLoad()
-
-	log := setupLogger(cfg.Env)
-
-	_ = log
-
-	db, err := connectDB()
+	a, err := app.NewApp(context.Background())
 	if err != nil {
-		log.Error(err.Error())
+		log.Fatalf("failed to init app: %s", err)
 	}
 
-	_ = db
+	err = a.Run()
+	if err != nil {
+		log.Fatalf("failed to run app: %s", err)
+	}
 }

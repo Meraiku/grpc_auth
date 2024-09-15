@@ -21,7 +21,7 @@ func (i *Implemintation) Register(ctx context.Context, in *ssov1.RegisterRequest
 		return nil, status.Error(codes.InvalidArgument, "password is required")
 	}
 
-	uid, err := i.authService.Register(ctx, converter.ToUserFromSSO(in))
+	uid, err := i.authService.Register(ctx, converter.ToUserFromSSORegister(in))
 	if err != nil {
 		if errors.Is(err, storage.ErrUserExists) {
 			return nil, status.Error(codes.AlreadyExists, "user already exists")
