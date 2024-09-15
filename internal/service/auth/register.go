@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"time"
 
 	"github.com/Meraiku/grpc_auth/internal/lib/logger/sl"
 	"github.com/Meraiku/grpc_auth/internal/model"
@@ -24,6 +25,8 @@ func (s *service) Register(ctx context.Context, user *model.User) (string, error
 	log.Info("registering user")
 
 	user.ID = uuid.NewString()
+	user.CreatedAt = time.Now().UTC()
+	user.UpdatedAt = time.Now().UTC()
 
 	user.Password, err = bcrypt.GenerateFromPassword(user.Password, bcrypt.DefaultCost)
 	if err != nil {

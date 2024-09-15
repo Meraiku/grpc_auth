@@ -7,12 +7,17 @@ import (
 	"sync"
 
 	"github.com/Meraiku/grpc_auth/internal/model"
+	"github.com/Meraiku/grpc_auth/internal/storage"
 	"github.com/Meraiku/grpc_auth/internal/storage/postgres/converter"
 	storageModel "github.com/Meraiku/grpc_auth/internal/storage/postgres/model"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/pgdialect"
 	"github.com/uptrace/bun/driver/pgdriver"
 )
+
+var _ storage.UserStorage = (*postgres)(nil)
+var _ storage.AppStorage = (*postgres)(nil)
+var _ storage.Storage = (*postgres)(nil)
 
 type postgres struct {
 	db *bun.DB
@@ -33,7 +38,7 @@ func New() (*postgres, error) {
 		mu: &sync.RWMutex{}}, nil
 }
 
-func (s *postgres) SaveUser(ctx context.Context, u *model.User) (string, error) {
+func (s *postgres) SaveUser(ctx context.Context, user *model.User) (string, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -42,7 +47,7 @@ func (s *postgres) SaveUser(ctx context.Context, u *model.User) (string, error) 
 		return "", err
 	}
 
-	_, err = tx.NewInsert().Model(converter.FromUserToStorage(u)).Exec(ctx)
+	_, err = tx.NewInsert().Model(converter.FromUserToStorage(user)).Exec(ctx)
 	if err != nil {
 		tx.Rollback()
 		return "", err
@@ -50,7 +55,7 @@ func (s *postgres) SaveUser(ctx context.Context, u *model.User) (string, error) 
 
 	tx.Commit()
 
-	return u.ID, nil
+	return user.ID, nil
 }
 
 func (s *postgres) DeleteUser(ctx context.Context, email string) error {
