@@ -16,7 +16,7 @@ type GRPCConfig interface {
 
 type Config struct {
 	Env      string        `yaml:"env" env-default:"local"`
-	GRPC     GRPCConfig    `yaml:"grpc"`
+	GRPC     grpcConfig    `yaml:"grpc"`
 	TokenTTL time.Duration `yaml:"token_ttl" env-default:"1h"`
 }
 
@@ -45,8 +45,8 @@ func NewGRPCConfig() (*Config, error) {
 	return cfg, nil
 }
 
-func (cfg *grpcConfig) Address() string {
-	return net.JoinHostPort(cfg.Host, cfg.Port)
+func (cfg *Config) Address() string {
+	return net.JoinHostPort(cfg.GRPC.Host, cfg.GRPC.Port)
 }
 
 func fetchConfigPath() string {
