@@ -3,9 +3,12 @@ package postgres
 import (
 	"context"
 	"database/sql"
+	"os"
 	"sync"
 
 	"github.com/Meraiku/grpc_auth/internal/model"
+	"github.com/Meraiku/grpc_auth/internal/storage/postgres/converter"
+	storageModel "github.com/Meraiku/grpc_auth/internal/storage/postgres/model"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/pgdialect"
 	"github.com/uptrace/bun/driver/pgdriver"
@@ -16,8 +19,12 @@ type postgres struct {
 	mu *sync.RWMutex
 }
 
-func New(dsn string) (*postgres, error) {
-	sqldb := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(dsn)))
+func New() (*postgres, error) {
+	sqldb := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(os.Getenv("DB_URL"))))
+
+	if err := sqldb.Ping(); err != nil {
+		return nil, err
+	}
 
 	db := bun.NewDB(sqldb, pgdialect.New())
 
@@ -35,7 +42,7 @@ func (s *postgres) SaveUser(ctx context.Context, u *model.User) (string, error) 
 		return "", err
 	}
 
-	_, err = tx.NewInsert().Model(u).Exec(ctx)
+	_, err = tx.NewInsert().Model(converter.FromUserToStorage(u)).Exec(ctx)
 	if err != nil {
 		tx.Rollback()
 		return "", err
@@ -58,21 +65,26 @@ func (s *postgres) DeleteUser(ctx context.Context, email string) error {
 }
 
 func (s *postgres) GetUser(ctx context.Context, email string) (*model.User, error) {
-	u := &model.User{}
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	u := &storageModel.User{}
 
 	_, err := s.db.NewSelect().Model(u).Where("email = ?", email).Exec(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return u, nil
+	return converter.ToUserFromStorage(u), nil
 }
 
 func (s *postgres) App(ctx context.Context, id int) (*model.App, error) {
-	a := &model.App{}
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	a := &storageModel.App{}
 
 	_, err := s.db.NewSelect().Model(a).Where("id = ?", id).Exec(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return a, nil
+	return converter.ToAppFromStorage(a), nil
 }

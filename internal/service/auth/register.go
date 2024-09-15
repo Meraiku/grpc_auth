@@ -7,12 +7,13 @@ import (
 
 	"github.com/Meraiku/grpc_auth/internal/lib/logger/sl"
 	"github.com/Meraiku/grpc_auth/internal/model"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
 func (s *service) Register(ctx context.Context, user *model.User) (string, error) {
 
-	const op = "Auth.RegisterNewUser"
+	const op = "Auth.Register"
 	var err error
 
 	log := s.log.With(
@@ -21,6 +22,8 @@ func (s *service) Register(ctx context.Context, user *model.User) (string, error
 	)
 
 	log.Info("registering user")
+
+	user.ID = uuid.NewString()
 
 	user.Password, err = bcrypt.GenerateFromPassword(user.Password, bcrypt.DefaultCost)
 	if err != nil {

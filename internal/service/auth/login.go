@@ -9,21 +9,22 @@ import (
 
 	"github.com/Meraiku/grpc_auth/internal/lib/jwt"
 	"github.com/Meraiku/grpc_auth/internal/lib/logger/sl"
+	"github.com/Meraiku/grpc_auth/internal/model"
 	"github.com/Meraiku/grpc_auth/internal/storage"
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (s *service) Login(ctx context.Context, email string, password string, appID int) (*jwt.Tokens, error) {
+func (s *service) Login(ctx context.Context, u model.User, appID int) (*jwt.Tokens, error) {
 	const op = "Auth.Login"
 
 	log := s.log.With(
 		slog.String("op", op),
-		slog.String("username", email),
+		slog.String("username", u.Email),
 	)
 
 	log.Info("attempting to login user")
 
-	user, err := s.userStorage.GetUser(ctx, email)
+	user, err := s.userStorage.GetUser(ctx, u.Email)
 	if err != nil {
 		if errors.Is(err, storage.ErrUserNotFound) {
 			s.log.Warn("user not found", sl.Err(err))
@@ -36,7 +37,7 @@ func (s *service) Login(ctx context.Context, email string, password string, appI
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	if err := bcrypt.CompareHashAndPassword(user.Password, []byte(password)); err != nil {
+	if err := bcrypt.CompareHashAndPassword(user.Password, []byte(user.Password)); err != nil {
 		s.log.Info("invalid credentials", sl.Err(err))
 
 		return nil, fmt.Errorf("%s: %w", op, ErrInvalidCredentials)
