@@ -21,6 +21,19 @@ reset:
 	@goose postgres $(DB_URL) reset;
 	@goose postgres $(DB_URL) up
 
+upt:
+	@cd ./tests/migrations;
+	@goose postgres $(DB_URL) up
+
+downt:
+	@cd ./tests/migrations;
+	@goose postgres $(DB_URL) down
+
+resett:
+	@cd ./tests/migrations;
+	@goose postgres $(DB_URL) reset;
+	@goose postgres $(DB_URL) up
+
 docker:build
 	docker build . -t $(I_PATH)/$(I_NAME)
 	docker push $(I_PATH)/$(I_NAME)

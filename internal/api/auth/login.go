@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"errors"
+	"log/slog"
 
 	"github.com/Meraiku/grpc_auth/internal/converter"
 	"github.com/Meraiku/grpc_auth/internal/service/auth"
@@ -30,6 +31,8 @@ func (i *Implemintation) Login(ctx context.Context, in *ssov1.LoginRequest) (*ss
 		if errors.Is(err, auth.ErrInvalidCredentials) {
 			return nil, status.Error(codes.InvalidArgument, "invalid email or password")
 		}
+
+		slog.Error("error login user", "error", err)
 
 		return nil, status.Error(codes.Internal, "failed to login")
 	}

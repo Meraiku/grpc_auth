@@ -4,6 +4,7 @@ go 1.23.0
 
 require (
 	github.com/Meraiku/protos v1.0.0
+	github.com/brianvoe/gofakeit/v6 v6.28.0
 	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/google/uuid v1.6.0
 	github.com/ilyakaznacheev/cleanenv v1.5.0

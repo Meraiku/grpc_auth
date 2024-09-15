@@ -7,9 +7,11 @@ import (
 
 func ToUserFromStorage(u *storageModel.User) *model.User {
 	return &model.User{
-		ID:       u.ID,
-		Email:    u.Email,
-		Password: u.Password,
+		ID:        u.ID,
+		Email:     u.Email,
+		Password:  u.Password,
+		CreatedAt: u.CreatedAt,
+		UpdatedAt: u.UpdatedAt,
 	}
 }
 

@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"database/sql"
+	"log/slog"
 	"os"
 	"sync"
 
@@ -74,10 +75,12 @@ func (s *postgres) GetUser(ctx context.Context, email string) (*model.User, erro
 	defer s.mu.RUnlock()
 	u := &storageModel.User{}
 
-	_, err := s.db.NewSelect().Model(u).Where("email = ?", email).Exec(ctx)
+	err := s.db.NewSelect().Model(u).Where("email = ?", email).Scan(ctx)
 	if err != nil {
 		return nil, err
 	}
+	slog.Info("user", "id", u.ID, "password hash", u.Password)
+
 	return converter.ToUserFromStorage(u), nil
 }
 
@@ -87,7 +90,7 @@ func (s *postgres) App(ctx context.Context, id int) (*model.App, error) {
 
 	a := &storageModel.App{}
 
-	_, err := s.db.NewSelect().Model(a).Where("id = ?", id).Exec(ctx)
+	err := s.db.NewSelect().Table("app").Where("id = ?", id).Scan(ctx, a)
 	if err != nil {
 		return nil, err
 	}

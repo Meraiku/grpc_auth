@@ -37,7 +37,7 @@ func (s *service) Login(ctx context.Context, u *model.User, appID int) (*jwt.Tok
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	if err := bcrypt.CompareHashAndPassword(user.Password, []byte(user.Password)); err != nil {
+	if err := bcrypt.CompareHashAndPassword(user.Password, []byte(u.Password)); err != nil {
 		s.log.Info("invalid credentials", sl.Err(err))
 
 		return nil, fmt.Errorf("%s: %w", op, ErrInvalidCredentials)
