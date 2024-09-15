@@ -7,19 +7,16 @@ import (
 )
 
 type service struct {
-	userStorage storage.UserStorage
-	appStorage  storage.AppStorage
-	log         *slog.Logger
+	storage storage.Storage
+	log     *slog.Logger
 }
 
 func NewService(
-	userStorage storage.UserStorage,
-	appStorage storage.AppStorage,
+	storage storage.Storage,
 	log *slog.Logger,
 ) *service {
 	return &service{
-		userStorage: userStorage,
-		appStorage:  appStorage,
-		log:         log,
+		storage: storage,
+		log:     log,
 	}
 }

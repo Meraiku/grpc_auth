@@ -40,3 +40,19 @@ func (s *serviceProvider) Storage() storage.Storage {
 
 	return s.storage
 }
+
+func (s *serviceProvider) AuthService() *service.AuthService {
+	if s.authService == nil {
+		s.authService = 
+	}
+
+	return s.authService
+}
+
+func (s *serviceProvider) AuthImpl() *auth.Implemintation {
+	if s.authImpl == nil {
+		s.authImpl = auth.NewImplemintation(*s.authService)
+	}
+
+	return s.authImpl
+}
