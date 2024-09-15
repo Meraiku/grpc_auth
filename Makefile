@@ -16,6 +16,11 @@ down:
 	@cd ./sql/migrations;
 	@goose postgres $(DB_URL) down
 
+reset:
+	@cd ./sql/migrations;
+	@goose postgres $(DB_URL) reset;
+	@goose postgres $(DB_URL) up
+
 docker:build
 	docker build . -t $(I_PATH)/$(I_NAME)
 	docker push $(I_PATH)/$(I_NAME)
