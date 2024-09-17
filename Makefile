@@ -8,6 +8,14 @@ build:
 run:build
 	@./.bin/auth --config ./config/config_local.yaml
 
+test:
+	@go test ./... -cover -count=1
+
+cover:
+	@go test -short -count=1 -coverprofile=coverage.out ./...
+	@go tool cover -html=coverage.out
+	@rm coverage.out
+
 up:
 	@cd ./sql/migrations;
 	@goose postgres $(DB_URL) up
@@ -18,19 +26,6 @@ down:
 
 reset:
 	@cd ./sql/migrations;
-	@goose postgres $(DB_URL) reset;
-	@goose postgres $(DB_URL) up
-
-upt:
-	@cd ./tests/migrations;
-	@goose postgres $(DB_URL) up
-
-downt:
-	@cd ./tests/migrations;
-	@goose postgres $(DB_URL) down
-
-resett:
-	@cd ./tests/migrations;
 	@goose postgres $(DB_URL) reset;
 	@goose postgres $(DB_URL) up
 

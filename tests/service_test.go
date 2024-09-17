@@ -2,6 +2,7 @@ package tests
 
 import (
 	"context"
+	"strings"
 	"testing"
 
 	"github.com/Meraiku/grpc_auth/internal/config"
@@ -66,6 +67,11 @@ func TestGRPCService(t *testing.T) {
 		Email:    email,
 		Password: pass,
 	})
+	if err != nil {
+		if strings.Contains(err.Error(), "connection refused") {
+			t.Skip()
+		}
+	}
 
 	require.NoError(t, err)
 	assert.NotEmpty(t, respReg.GetUserId())
