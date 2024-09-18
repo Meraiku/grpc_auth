@@ -7,14 +7,15 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/Meraiku/grpc_auth/internal/lib/jwt"
 	"github.com/Meraiku/grpc_auth/internal/lib/logger/sl"
+	"github.com/Meraiku/grpc_auth/internal/lib/tokens"
 	"github.com/Meraiku/grpc_auth/internal/model"
 	"github.com/Meraiku/grpc_auth/internal/storage"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (s *service) Login(ctx context.Context, u *model.User, appID int) (*jwt.Tokens, error) {
+func (s *service) Login(ctx context.Context, u *model.User, appID int) (*tokens.Tokens, error) {
 	const op = "Auth.Login"
 
 	log := s.log.With(
@@ -48,23 +49,37 @@ func (s *service) Login(ctx context.Context, u *model.User, appID int) (*jwt.Tok
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
+	_ = app
+
 	log.Info("user logged in successfully")
 
-	tok := jwt.NewTokens()
+	tokensID := uuid.NewString()
 
-	access, err := tok.ID(user.ID).Email(user.Email).ExpiredAt(15 * time.Minute).AppID(app.ID).Generate([]byte(app.Secret))
+	access, err := tokens.GenerateJWT(
+		u.ID,
+		tokensID,
+		u.Email,
+		time.Minute*15,
+		"secret",
+	)
 	if err != nil {
 		s.log.Error("failed to generate token", sl.Err(err))
 
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	refresh, err := tok.ID(user.ID).ExpiredAt(24 * time.Hour).AppID(app.ID).Generate([]byte(app.Secret))
+	refresh, err := tokens.GenerateJWT(
+		u.ID,
+		tokensID,
+		u.Email,
+		time.Hour*24,
+		"secret",
+	)
 	if err != nil {
 		s.log.Error("failed to generate token", sl.Err(err))
 
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	return &jwt.Tokens{AccessToken: access, RefreshToken: refresh}, nil
+	return &tokens.Tokens{AccessToken: access, RefreshToken: refresh}, nil
 }
