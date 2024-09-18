@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	"time"
 
 	"github.com/Meraiku/grpc_auth/internal/lib/logger/sl"
 	"github.com/Meraiku/grpc_auth/internal/model"
@@ -49,7 +48,7 @@ func (s *service) Login(ctx context.Context, u *model.User, appID int) (*model.T
 
 	log.Info("user logged in successfully")
 
-	tokenPair, err := GenerateTokenPair(u, app, s.cfg.TokenTTL, s.cfg.TokenTTL*time.Hour*30)
+	tokenPair, err := GenerateTokenPair(u, app, s.cfg.AccessTTL, s.cfg.RefreshTTL)
 	if err != nil {
 		s.log.Error("failed to generate tokens", sl.Err(err))
 

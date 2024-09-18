@@ -46,8 +46,7 @@ func TestJWTWithoutSecret(t *testing.T) {
 	}
 
 	a := &model.App{
-		ID:     1,
-		Secret: "secret",
+		ID: 1,
 	}
 
 	_, err := GenerateJWT(
