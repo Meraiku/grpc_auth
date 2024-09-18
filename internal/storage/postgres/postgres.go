@@ -3,7 +3,6 @@ package postgres
 import (
 	"context"
 	"database/sql"
-	"log/slog"
 	"os"
 	"sync"
 
@@ -79,7 +78,6 @@ func (s *postgres) GetUser(ctx context.Context, email string) (*model.User, erro
 	if err != nil {
 		return nil, err
 	}
-	slog.Info("user", "id", u.ID, "password hash", u.Password)
 
 	return converter.ToUserFromStorage(u), nil
 }
