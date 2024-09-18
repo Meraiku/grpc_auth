@@ -59,7 +59,7 @@ func (s *serviceProvider) Logger() *slog.Logger {
 
 func (s *serviceProvider) AuthService() service.AuthService {
 	if s.authService == nil {
-		s.authService = authService.NewService(s.Storage(), s.Logger())
+		s.authService = authService.NewService(s.Storage(), s.Logger(), s.Config())
 	}
 
 	return s.authService

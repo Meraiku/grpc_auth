@@ -4,17 +4,14 @@ import (
 	"errors"
 	"time"
 
+	"github.com/Meraiku/grpc_auth/internal/model"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 )
 
 var (
 	ErrNoSecret = errors.New("error: empty secret")
 )
-
-type Tokens struct {
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
-}
 
 type Claims struct {
 	ID    string `json:"id"`
@@ -25,20 +22,19 @@ type Claims struct {
 }
 
 func GenerateJWT(
-	id string,
-	tokensId string,
-	email string,
+	user *model.User,
+	app *model.App,
 	ttl time.Duration,
-	secret string,
 ) (string, error) {
-	if secret == "" {
+	if app.Secret == "" {
 		return "", ErrNoSecret
 	}
 
 	c := &Claims{
-		ID:    id,
-		UID:   tokensId,
-		Email: email,
+		ID:    user.ID,
+		UID:   uuid.NewString(),
+		Email: user.Email,
+		AppID: app.ID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(ttl).UTC()),
 		},
@@ -46,7 +42,7 @@ func GenerateJWT(
 
 	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, c)
 
-	token, err := jwtToken.SignedString([]byte(secret))
+	token, err := jwtToken.SignedString([]byte(app.Secret))
 	if err != nil {
 		return "", err
 	}
