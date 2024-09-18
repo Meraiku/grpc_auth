@@ -2,19 +2,19 @@ package app
 
 import (
 	"log"
-	"log/slog"
 
 	"github.com/Meraiku/grpc_auth/internal/api/auth"
 	"github.com/Meraiku/grpc_auth/internal/config"
-	"github.com/Meraiku/grpc_auth/internal/lib/logger/sl"
+	"github.com/Meraiku/grpc_auth/internal/lib/logger/zapl"
 	"github.com/Meraiku/grpc_auth/internal/service"
 	authService "github.com/Meraiku/grpc_auth/internal/service/auth"
 	"github.com/Meraiku/grpc_auth/internal/storage"
 	"github.com/Meraiku/grpc_auth/internal/storage/postgres"
+	"go.uber.org/zap"
 )
 
 type serviceProvider struct {
-	log         *slog.Logger
+	log         *zap.Logger
 	config      *config.Config
 	storage     storage.Storage
 	authService service.AuthService
@@ -49,9 +49,9 @@ func (s *serviceProvider) Storage() storage.Storage {
 	return s.storage
 }
 
-func (s *serviceProvider) Logger() *slog.Logger {
+func (s *serviceProvider) Logger() *zap.Logger {
 	if s.log == nil {
-		s.log = sl.SetupLogger(s.Config().Env)
+		s.log = zapl.SetupLogger(s.Config().Env)
 	}
 
 	return s.log

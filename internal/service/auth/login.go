@@ -4,20 +4,21 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log/slog"
 
-	"github.com/Meraiku/grpc_auth/internal/lib/logger/sl"
 	"github.com/Meraiku/grpc_auth/internal/model"
 	"github.com/Meraiku/grpc_auth/internal/storage"
+	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 )
 
 func (s *service) Login(ctx context.Context, u *model.User, appID int) (*model.Tokens, error) {
+	defer s.log.Sync()
+
 	const op = "Auth.Login"
 
 	log := s.log.With(
-		slog.String("op", op),
-		slog.String("username", u.Email),
+		zap.String("op", op),
+		zap.String("username", u.Email),
 	)
 
 	log.Info("attempting to login user")
@@ -25,18 +26,24 @@ func (s *service) Login(ctx context.Context, u *model.User, appID int) (*model.T
 	user, err := s.storage.GetUser(ctx, u.Email)
 	if err != nil {
 		if errors.Is(err, storage.ErrUserNotFound) {
-			s.log.Warn("user not found", sl.Err(err))
+			s.log.Warn("user not found",
+				zap.String("error", err.Error()),
+			)
 
 			return nil, fmt.Errorf("%s: %w", op, ErrInvalidCredentials)
 		}
 
-		s.log.Error("failed to get user", sl.Err(err))
+		s.log.Error("failed to get user",
+			zap.String("error", err.Error()),
+		)
 
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
 	if err := bcrypt.CompareHashAndPassword(user.Password, []byte(u.Password)); err != nil {
-		s.log.Info("invalid credentials", sl.Err(err))
+		s.log.Info("invalid credentials",
+			zap.String("error", err.Error()),
+		)
 
 		return nil, fmt.Errorf("%s: %w", op, ErrInvalidCredentials)
 	}
@@ -50,7 +57,9 @@ func (s *service) Login(ctx context.Context, u *model.User, appID int) (*model.T
 
 	tokenPair, err := GenerateTokenPair(u, app, s.cfg.AccessTTL, s.cfg.RefreshTTL)
 	if err != nil {
-		s.log.Error("failed to generate tokens", sl.Err(err))
+		s.log.Error("failed to generate tokens",
+			zap.String("error", err.Error()),
+		)
 
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
