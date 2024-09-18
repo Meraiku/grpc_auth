@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"os"
+	"strings"
 	"sync"
 
 	"github.com/Meraiku/grpc_auth/internal/model"
@@ -50,6 +51,11 @@ func (s *postgres) SaveUser(ctx context.Context, user *model.User) (string, erro
 	_, err = tx.NewInsert().Model(converter.FromUserToStorage(user)).Exec(ctx)
 	if err != nil {
 		tx.Rollback()
+
+		if strings.Contains(err.Error(), "duplicate key") {
+			return "", ErrEmailExists
+		}
+
 		return "", err
 	}
 

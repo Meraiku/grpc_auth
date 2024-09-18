@@ -25,6 +25,7 @@ func TestUserCreation(t *testing.T) {
 	if err != nil {
 		t.Skip(err)
 	}
+
 	user := &model.User{
 		ID:        uuid.NewString(),
 		Email:     "test@gmail.com",

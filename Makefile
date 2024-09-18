@@ -9,7 +9,7 @@ run:build
 	@./.bin/auth --config ./config/config_local.yaml
 
 test:
-	@go test ./... -cover -count=1
+	@go test ./... -cover -race -count=10
 
 cover:
 	@go test -short -count=1 -coverprofile=coverage.out ./...

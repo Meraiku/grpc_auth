@@ -63,10 +63,12 @@ func TestGRPCService(t *testing.T) {
 	email := gofakeit.Email()
 	pass := randomFakePassword()
 
-	respReg, err := st.AuthClient.Register(ctx, &ssov1.RegisterRequest{
+	loginReq := &ssov1.RegisterRequest{
 		Email:    email,
 		Password: pass,
-	})
+	}
+
+	respReg, err := st.AuthClient.Register(ctx, loginReq)
 	if err != nil {
 		if strings.Contains(err.Error(), "connection refused") {
 			t.Skip()
@@ -75,6 +77,10 @@ func TestGRPCService(t *testing.T) {
 
 	require.NoError(t, err)
 	assert.NotEmpty(t, respReg.GetUserId())
+
+	_, err = st.AuthClient.Register(ctx, loginReq)
+
+	require.Error(t, err)
 
 	respLog, err := st.AuthClient.Login(ctx, &ssov1.LoginRequest{
 		Email:    email,
