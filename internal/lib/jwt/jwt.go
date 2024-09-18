@@ -27,6 +27,30 @@ func NewTokens() *Tokens {
 	}
 }
 
+func GenerateJWT(
+	id string,
+	email string,
+	ttl time.Duration,
+	secret string,
+) (string, error) {
+	c := &Claims{
+		ID:    id,
+		Email: email,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(ttl).UTC()),
+		},
+	}
+
+	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, c)
+
+	token, err := jwtToken.SignedString(secret)
+	if err != nil {
+		return "", err
+	}
+
+	return token, nil
+}
+
 func (t *Tokens) Generate(secret []byte) (string, error) {
 
 	t.Claims.UID = uuid.NewString()
