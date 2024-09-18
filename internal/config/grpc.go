@@ -15,9 +15,10 @@ type GRPCConfig interface {
 }
 
 type Config struct {
-	Env      string        `yaml:"env" env-default:"local"`
-	GRPC     grpcConfig    `yaml:"grpc"`
-	TokenTTL time.Duration `yaml:"token_ttl" env-default:"1h"`
+	Env        string        `yaml:"env" env-default:"local"`
+	GRPC       grpcConfig    `yaml:"grpc"`
+	AccessTTL  time.Duration `yaml:"access_ttl" env-default:"1h"`
+	RefreshTTL time.Duration `yaml:"refresh_ttl" env-default:"24h"`
 }
 
 type grpcConfig struct {
