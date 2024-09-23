@@ -3,6 +3,7 @@ package tests
 import (
 	"context"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/Meraiku/grpc_auth/internal/config"
@@ -32,7 +33,15 @@ func New(t *testing.T) (context.Context, *Suit) {
 
 	config.Load(".env")
 
-	cfg, err := config.NewGRPCConfig()
+	var cfg *config.Config
+	var err error
+
+	o := &sync.Once{}
+
+	o.Do(func() {
+		cfg, err = config.NewGRPCConfig()
+	})
+
 	require.NoError(t, err)
 
 	ctx, cancel := context.WithTimeout(context.Background(), cfg.GRPC.Timeout)

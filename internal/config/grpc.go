@@ -2,6 +2,7 @@ package config
 
 import (
 	"errors"
+	"flag"
 	"net"
 	"os"
 	"time"
@@ -52,8 +53,8 @@ func (cfg *Config) Address() string {
 func fetchConfigPath() string {
 	var res string
 
-	//flag.StringVar(&res, "config", "", "path to config file")
-	//flag.Parse()
+	flag.StringVar(&res, "config", "", "path to config file")
+	flag.Parse()
 
 	if res == "" {
 		res = os.Getenv("CONFIG_PATH")
